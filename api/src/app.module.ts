@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MenuItemModule } from './menu-item/menu-item.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -11,15 +13,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-      type: 'postgres',
-      host: configService.get("DATABASE_HOST"),
-      port: configService.get("DATABASE_PORT"),
-      username: configService.get("DATABASE_USERNAME"),
-      password: configService.get("DATABASE_PASSWORD"),
-      database: configService.get("DATABASE_NAME"),
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,})
+        type: 'postgres',
+        host: configService.get('DATABASE_HOST'),
+        port: configService.get('DATABASE_PORT'),
+        username: configService.get('DATABASE_USERNAME'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+      }),
     }),
+    MenuItemModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
