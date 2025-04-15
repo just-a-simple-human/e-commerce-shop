@@ -5,6 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MenuItemModule } from './menu-item/menu-item.module';
 import { CategoryModule } from './category/category.module';
+import { CustomerModule } from './customer/customer.module';
+import { AuthModule } from './auth/auth.module';
+import { EmployeeModule } from './employee/employee.module';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { CategoryModule } from './category/category.module';
     }),
     MenuItemModule,
     CategoryModule,
+    CustomerModule,
+    AuthModule,
+    EmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
