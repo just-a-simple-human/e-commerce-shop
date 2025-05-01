@@ -1,5 +1,6 @@
 import { Category } from 'src/entities/category.entity';
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Order } from './order.entity';
 
 @Entity({ name: 'menu_item' })
 export class MenuItem {
@@ -17,4 +18,6 @@ export class MenuItem {
     cascade: ['update'],
   })
   categories: Category[];
+  @ManyToMany(() => Order)
+  orders: Order[];
 }

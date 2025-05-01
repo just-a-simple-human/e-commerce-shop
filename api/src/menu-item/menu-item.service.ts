@@ -24,7 +24,7 @@ export class MenuItemService {
   async findOne(id: number) {
     const response = await this.menuItemRepository.findOne({ where: { id } });
     if (!response) {
-      return new NotFoundException(`No menu item with id = ${id}`);
+      throw new NotFoundException(`No menu item with id = ${id}`);
     }
     return response;
   }

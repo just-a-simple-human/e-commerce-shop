@@ -38,7 +38,7 @@ export class CategoryService {
       relations: { menuItems: true },
     });
     if (!response) {
-      return new NotFoundException(`No category with id = ${id}`);
+      throw new NotFoundException(`No category with id = ${id}`);
     }
     return response;
   }
@@ -46,7 +46,7 @@ export class CategoryService {
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
     const category = await this.categoryRepositry.findOne({ where: { id } });
     if (!category) {
-      return new NotFoundException(`No category with id = ${id}`);
+      throw new NotFoundException(`No category with id = ${id}`);
     }
     const response = await this.categoryRepositry.save({
       ...category,
@@ -61,7 +61,7 @@ export class CategoryService {
       relations: { menuItems: true },
     });
     if (!category) {
-      return new NotFoundException(`No category with id = ${id}`);
+      throw new NotFoundException(`No category with id = ${id}`);
     }
     const newMenuItems = await this.menuItemRepository.find({
       where: {
@@ -81,7 +81,7 @@ export class CategoryService {
       relations: { menuItems: true },
     });
     if (!category) {
-      return new NotFoundException(`No category with id = ${id}`);
+      throw new NotFoundException(`No category with id = ${id}`);
     }
     const newMenuItems = category.menuItems.filter(
       (e) => !menuItems.map((e) => e.id).includes(e.id),

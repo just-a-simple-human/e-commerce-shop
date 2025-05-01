@@ -27,6 +27,9 @@ export class CustomerService {
     const response = await this.customerRepository.findOne({
       where: { email },
     });
+    if (!response) {
+      throw new NotFoundException();
+    }
     return response;
   }
 
@@ -34,6 +37,9 @@ export class CustomerService {
     const response = await this.customerRepository.findOne({
       where: { id },
     });
+    if (!response) {
+      throw new NotFoundException();
+    }
     return response;
   }
 

@@ -8,6 +8,7 @@ import { CategoryModule } from './category/category.module';
 import { CustomerModule } from './customer/customer.module';
 import { AuthModule } from './auth/auth.module';
 import { EmployeeModule } from './employee/employee.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { EmployeeModule } from './employee/employee.module';
     CustomerModule,
     AuthModule,
     EmployeeModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

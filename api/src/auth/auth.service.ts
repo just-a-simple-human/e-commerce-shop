@@ -1,14 +1,12 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { verify } from 'argon2';
+import { hash, verify } from 'argon2';
 import { CustomerService } from 'src/customer/customer.service';
 import { EmployeeService } from 'src/employee/employee.service';
-import { RegisterCustomerDto, RegisterEmployeeDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { IPayload } from './types/payload.type';
+import { CreateCustomerDto } from 'src/customer/dto/create-customer.dto';
+import { CreateEmployeeDto } from 'src/employee/dto/create-employee.dto';
+import { Role } from './types/permission.type';
 
 @Injectable()
 export class AuthService {
@@ -18,14 +16,18 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async registerCustomer(registerCustomerDto: RegisterCustomerDto) {
-    const customer = await this.customerService.create(registerCustomerDto);
+  async registerCustomer(createCustomerDto: CreateCustomerDto) {
+    const customer = await this.customerService.create({
+      ...createCustomerDto,
+      password: await hash(createCustomerDto.password),
+    });
     const { password, ...response } = customer;
     return {
       ...response,
       access_token: this.jwtService.sign({
-        id: registerCustomerDto.id,
-        email: registerCustomerDto.email,
+        id: createCustomerDto.id,
+        email: createCustomerDto.email,
+        role: Role.Customer,
       }),
     };
   }
@@ -33,7 +35,7 @@ export class AuthService {
   async validateCustomer(email: string, password: string) {
     const customer = await this.customerService.findOneByEmail(email);
     if (!customer) {
-      return new NotFoundException();
+      throw new NotFoundException();
     }
     const isPasswordMatch = await verify(customer.password, password);
     if (isPasswordMatch) {
@@ -43,14 +45,18 @@ export class AuthService {
     return null;
   }
 
-  async registerEmployee(registerEmployeeDto: RegisterEmployeeDto) {
-    const employee = await this.employeeService.create(registerEmployeeDto);
+  async registerEmployee(createEmployeeDto: CreateEmployeeDto) {
+    const employee = await this.employeeService.create({
+      ...createEmployeeDto,
+      password: await hash(createEmployeeDto.password),
+    });
     const { password, ...response } = employee;
     return {
       ...response,
       access_token: this.jwtService.sign({
-        id: registerEmployeeDto.id,
-        email: registerEmployeeDto.email,
+        id: createEmployeeDto.id,
+        email: createEmployeeDto.email,
+        role: Role.Admin,
       }),
     };
   }
@@ -58,7 +64,7 @@ export class AuthService {
   async validateEmployee(email: string, password: string) {
     const employee = await this.employeeService.findOneByEmail(email);
     if (!employee) {
-      return new NotFoundException();
+      throw new NotFoundException();
     }
     const isPasswordMatch = await verify(employee.password, password);
     if (isPasswordMatch) {
@@ -68,11 +74,36 @@ export class AuthService {
     return null;
   }
 
-  async login(loginDto: LoginDto) {
-    const payload = {
-      id: loginDto.id,
-      email: loginDto.email,
+  async login(payload: IPayload, role: Role) {
+    return {
+      ...payload,
+      access_token: this.jwtService.sign({ ...payload, role: role }),
     };
-    return { ...payload, access_token: this.jwtService.sign(payload) };
+  }
+
+  async loginCustomer(payload: IPayload) {
+    const customer = await this.customerService.findOneByEmail(payload.email);
+    if (!customer) {
+      throw new NotFoundException();
+    }
+    const response = await this.login(
+      {
+        id: customer.id,
+        email: customer.email,
+      },
+      Role.Customer,
+    );
+    return response;
+  }
+  async loginEmployee(payload: IPayload) {
+    const employee = await this.employeeService.findOneByEmail(payload.email);
+    if (!employee) {
+      throw new NotFoundException();
+    }
+    const response = this.login(
+      { id: employee.id, email: employee.email },
+      Role.Admin,
+    );
+    return response;
   }
 }
